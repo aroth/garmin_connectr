@@ -11,7 +11,7 @@ class GarminConnectr
   attr_reader :elevation_gain, :elevation_loss, :min_elevation, :max_elevation
   attr_reader :avg_heartrate, :max_heartrate
   attr_reader :avg_cadence, :max_cadence
-  attr_reader :avg_temperature, :min_temperature, :max_temperaute
+  attr_reader :avg_temperature, :min_temperature, :max_temperature
   
   def initialize( id )
     @id = id
@@ -56,9 +56,9 @@ class GarminConnectr
     @max_cadence = tab_data('Max Bike Cadence')
     
     ## Temperature Fields
-    @avg_temperate = tab_data('Avg Temperature')
-    @min_temperate = tab_data('Min Temperature')
-    @max_temperate = tab_data('Max Temperature')
+    @avg_temperature = tab_data('Avg Temperature')
+    @min_temperature = tab_data('Min Temperature')
+    @max_temperature = tab_data('Max Temperature')
     
     ## Power Fields
     # TODO: I don't have a PowerMeter yet...
