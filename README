@@ -1,0 +1,24 @@
+GarminConnectr - Simple ruby lib to fetch data from Garmin Connect
+
+The Garmin Connect API hasn't been released yet. This will suffice for now. 
+
+Usage:
+
+require 'garmin_connectr'
+g = GarminConnectr.new( ACTIVITY_ID )
+puts "#{ g.name } / #{ g.device } / #g{ }"
+
+
+Methods:
+
+name, url, device
+start_time, start_time_str
+activity, event, time, distance, calories
+avg_speed, max_speed
+elevation_gain, elevation_loss, min_elevation, max_elevation
+avg_heartrate, max_heartrate
+avg_cadence, max_cadence
+avg_temperature, min_temperature, max_temperaute
+
+Requires:
+  Nokogiri
