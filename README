@@ -6,7 +6,7 @@ Usage:
 
 require 'garmin_connectr'
 g = GarminConnectr.new( ACTIVITY_ID )
-puts "#{ g.name } / #{ g.device } / #g{ }"
+puts g.activity
 
 
 Methods:
