@@ -19,6 +19,7 @@ elevation_gain, elevation_loss, min_elevation, max_elevation
 avg_heartrate, max_heartrate
 avg_cadence, max_cadence
 avg_temperature, min_temperature, max_temperaute
+avg_page, max_pace
 
 Requires:
   Nokogiri

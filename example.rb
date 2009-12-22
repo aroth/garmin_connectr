@@ -1,5 +1,5 @@
 require 'garmin_connectr'
-g = GarminConnectr.new( 20733252 )
+g = GarminConnectr.new( 20874127 )
 
 puts "NAME: #{ g.name }"
 puts "URL: #{ g.url }"
