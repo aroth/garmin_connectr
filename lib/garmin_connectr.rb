@@ -1,0 +1,101 @@
+require 'rubygems'
+require 'nokogiri'
+require 'open-uri'
+require 'mechanize'
+
+class GarminConnectr
+  
+  attr_reader :activity_list
+  
+  def initialize
+    @activity_list = []
+  end
+  
+  ## Load a specific Garmin Connect activity. See GarminConnectActivity rdoc for more information.
+  def load( activity_id )
+    activity = GarminConnectActivity.new( activity_id )
+    activity.load!
+  end
+  
+  ## Returns an array of GarminActivity objects. 
+  ##
+  ## Options:
+  ##    :preload [true/false] - Automatically fetch additional activity data for each activity returned (slower)
+  ##    :limit - Limit the number of activites returned (default: 50)
+  def activities( username, password, opts={} )
+    @activity_list = []
+    limit = opts[:limit] || 50
+    
+    agent = WWW::Mechanize.new { |agent| agent.user_agent_alias = 'Mac Safari' }
+    page = agent.get('http://connect.garmin.com/signin')
+    form = page.form('login')
+    form.send('login:loginUsernameField', username)
+    form.send('login:password', password)
+    form.submit
+    
+    page = agent.get('http://connect.garmin.com/activities')
+
+    doc = Nokogiri::HTML( page.body )
+    activities = doc.search('.activityNameLink')
+    activities[0, limit].each do |act|
+      name = act.search('span').inner_html
+      act[:href].match(/\/([\d]+)$/)
+      aid = $1
+      
+      activity = GarminConnectActivity.new( aid, name )
+      activity.load! if opts[:preload]
+      @activity_list << activity
+    end
+    @activity_list
+  end
+  
+end
+
+class GarminConnectActivity
+
+  attr_reader :activity_id, :loaded, :name, :url, :device, :start_time, :activity, :event, :time, :distance, :calories
+  attr_reader :avg_speed, :max_speed, :elevation_gain, :elevation_loss, :min_elevation, :max_elevation, :avg_hr, :max_hr, :avg_bike_cadence, :max_bike_cadence, :avg_temperature, :min_temperature, :max_temperature, :avg_pace, :best_pace
+
+  FIELDS = ['Avg Speed', 'Max Speed', 'Elevation Gain', 'Elevation Loss', 'Min Elevation', 'Max Elevation', 'Avg HR', 'Max HR', 'Avg Bike Cadence', 'Max Bike Cadence', 'Avg Temperature', 'Min Temperature', 'Max Temperature', 'Avg Pace', 'Best Pace']
+  
+  def initialize( activity_id, name=nil )
+    @activity_id = activity_id
+    @name = name unless name.nil?
+    @loaded = false
+    @fields = ['name', 'url', 'device', 'start_time']
+  end
+  
+  ## Fetch activity details. This will happen automatically if using GarminConnect#load. You will have
+  ## call load! explicity on the activities returned by GarminConnect#activities unless the :preload option is set to true.
+  def load!
+    @doc = Nokogiri::HTML(open("http://connect.garmin.com/activity/#{ @activity_id }"))
+    @name = @doc.search('#activityName').inner_html
+    @url = "http://connect.garmin.com/activity/#{ @activity_id }"
+    @device = @doc.search('.additionalInfoContent span').inner_html.gsub('Device: ','')
+    @start_time = @doc.search('#activityStartDate').children[0].to_s.gsub(/[\n]+/,'')
+    @loaded = true
+
+    # Summary Fields (TODO: clean up)
+    @activity = @doc.search('#activityTypeValue').inner_html.gsub(/[\n]+/,'').strip rescue nil
+    @event = @doc.search('#eventTypeValue').inner_html.gsub(/[\n]+/,'').strip rescue nil
+    @time = @doc.css('#summaryTotalTime')[0].parent.children.search('.summaryField').inner_html.strip rescue nil
+    @distance = @doc.css('#summaryDistance')[0].parent.children.search('.summaryField').inner_html.strip rescue nil
+    @calories = @doc.css('#summaryCalories')[0].parent.children.search('.summaryField').inner_html.strip rescue nil
+        
+    # Tabbed Fields
+    FIELDS.each do |field|
+      name = field.downcase.gsub(' ','_')
+      self.instance_variable_set("@#{ name }", self.send( name ) )
+    end
+
+    self
+  end
+
+  private 
+  
+  def tab_data( field_label )
+    field_label += ":" unless field_label.match(/:$/)
+    @doc.css('.label').to_a.delete_if { |e| e.inner_html != field_label }.first.parent.children.search('.field').inner_html.strip rescue nil
+  end
+    
+end

@@ -5,12 +5,12 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
     gem.name = "garmin_connectr"
-    gem.summary = %Q{TODO: one-line summary of your gem}
-    gem.description = %Q{TODO: longer description of your gem}
+    gem.summary = %Q{Simple ruby lib to fetch data from Garmin Connect}
+    gem.description = %Q{The Garmin Connect API hasn't been released yet. This will suffice for now.}
     gem.email = "adamjroth@gmail.com"
     gem.homepage = "http://github.com/aroth/garmin_connectr"
     gem.authors = ["aroth"]
-    gem.add_development_dependency "thoughtbot-shoulda"
+    #gem.add_development_dependency "thoughtbot-shoulda"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
 rescue LoadError
