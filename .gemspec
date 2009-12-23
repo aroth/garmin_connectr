@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = nil
-  s.version = "0.0.2"
+  s.version = "0.0.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.date = %q{2009-12-23}
@@ -14,7 +14,8 @@ Gem::Specification.new do |s|
      "README.rdoc"
   ]
   s.files = [
-    ".gitignore",
+    ".gemspec",
+     ".gitignore",
      "LICENSE",
      "README.rdoc",
      "Rakefile",
