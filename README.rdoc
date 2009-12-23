@@ -2,6 +2,10 @@
 
 GarminConnectr is a simple Ruby library for accessing data from Garmin Connect. As of 12/2009, Garmin's own Connect API has yet to be released.
 
+Install:
+
+  gem install garmin_connectr
+
 Usage:
 
   require 'garmin_connectr'
