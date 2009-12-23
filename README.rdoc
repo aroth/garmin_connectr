@@ -4,20 +4,19 @@ GarminConnectr is a simple Ruby library for accessing data from Garmin Connect. 
 
 Usage:
 
-require 'garmin_connectr'
-gc = GarminConnectr.new
+  require 'garmin_connectr'
+  gc = GarminConnectr.new
 
-# Load a specific activity
-activity = gc.load( ACTIVITY_ID )
-puts "#{ g.activity } / #{ g.name } / #{ g.time } / #{ g.distance }"
+  # Load a specific activity
+  activity = gc.load( ACTIVITY_ID )
+  puts "#{ g.activity } / #{ g.name } / #{ g.time } / #{ g.distance }"
 
-# Load a list of my activities
-list = gc.activities( garmin_connect_username, garmin_connect_password )
-list.each do |activity|
-  activity.load!
-  puts "#{ activity.name } / #{ activity.start_time }"
-end
-
+  # Load a list of my activities
+  list = gc.activities( garmin_connect_username, garmin_connect_password )
+  list.each do |activity|
+    activity.load!
+    puts "#{ activity.name } / #{ activity.start_time }"
+  end
 
 See examples/*
 
