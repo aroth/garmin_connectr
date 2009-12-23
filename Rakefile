@@ -1,23 +1,6 @@
 require 'rubygems'
 require 'rake'
 
-begin
-  require 'jeweler'
-  Jeweler::Tasks.new do |gem|
-    gem.name = "garmin_connectr"
-    gem.summary = %Q{GarminConnectr is a simple Ruby library for accessing data from Garmin Connect.}
-    gem.description = %Q{GarminConnectr is a simple Ruby library for accessing data from Garmin Connect.}
-    gem.email = "adamjroth@gmail.com"
-    gem.homepage = "http://github.com/aroth/garmin_connectr"
-    gem.authors = ["aroth"]
-    #gem.add_development_dependency "thoughtbot-shoulda"
-    # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
-  end
-  Jeweler::GemcutterTasks.new
-rescue LoadError
-  puts "Jeweler (or a dependency) not available. Install it with: sudo gem install jeweler"
-end
-
 require 'rake/testtask'
 Rake::TestTask.new(:test) do |test|
   test.libs << 'lib' << 'test'
@@ -54,4 +37,22 @@ Rake::RDocTask.new do |rdoc|
   rdoc.title = "garmin_connectr #{version}"
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
+end
+
+begin
+  require 'jeweler'
+  Jeweler::Tasks.new do |gem|
+    gem.name = "garmin_connectr"
+    gem.summary = %Q{GarminConnectr is a simple Ruby library for accessing data from Garmin Connect.}
+    gem.description = %Q{GarminConnectr is a simple Ruby library for accessing data from Garmin Connect.}
+    gem.email = "adamjroth@gmail.com"
+    gem.homepage = "http://github.com/aroth/garmin_connectr"
+    gem.authors = ["aroth"]
+    #gem.add_development_dependency "thoughtbot-shoulda"
+    # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
+  end
+  puts "Sending to gemcutter.org"
+  Jeweler::GemcutterTasks.new
+rescue LoadError
+  puts "Jeweler (or a dependency) not available. Install it with: sudo gem install jeweler"
 end
