@@ -85,7 +85,7 @@ class GarminConnectActivity
     # Tabbed Fields
     FIELDS.each do |field|
       name = field.downcase.gsub(' ','_')
-      self.instance_variable_set("@#{ name }", self.send( name ) )
+      self.instance_variable_set("@#{ name }", self.send( :tab_data, field ) )
     end
 
     self
@@ -93,9 +93,9 @@ class GarminConnectActivity
 
   private 
   
-  def tab_data( field_label )
-    field_label += ":" unless field_label.match(/:$/)
-    @doc.css('.label').to_a.delete_if { |e| e.inner_html != field_label }.first.parent.children.search('.field').inner_html.strip rescue nil
+  def tab_data( label )
+    label += ":" unless label.match(/:$/)
+    @doc.css('.label').to_a.delete_if { |e| e.inner_html != label }.first.parent.children.search('.field').inner_html.strip rescue nil
   end
     
 end
