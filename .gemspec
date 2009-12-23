@@ -11,7 +11,6 @@ Gem::Specification.new do |s|
   s.date = %q{2009-12-23}
   s.extra_rdoc_files = [
     "LICENSE",
-     "README",
      "README.rdoc"
   ]
   s.files = [
@@ -19,12 +18,12 @@ Gem::Specification.new do |s|
      ".gemspec",
      ".gitignore",
      "LICENSE",
-     "README",
      "README.rdoc",
      "Rakefile",
      "VERSION",
      "examples/activity.rb",
      "examples/activity_list.rb",
+     "garmin_connectr.gemspec",
      "lib/garmin_connectr.rb",
      "test/garmin_connectr_test.rb"
   ]
