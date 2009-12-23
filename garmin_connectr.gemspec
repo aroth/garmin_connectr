@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["aroth"]
   s.date = %q{2009-12-23}
-  s.description = %q{The Garmin Connect API hasn't been released yet. This will suffice for now.}
+  s.description = %q{GarminConnectr is a simple Ruby library for accessing data from Garmin Connect.}
   s.email = %q{adamjroth@gmail.com}
   s.extra_rdoc_files = [
     "LICENSE",
@@ -33,7 +33,7 @@ Gem::Specification.new do |s|
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.3.5}
-  s.summary = %q{Simple ruby lib to fetch data from Garmin Connect}
+  s.summary = %q{GarminConnectr is a simple Ruby library for accessing data from Garmin Connect.}
   s.test_files = [
     "test/garmin_connectr_test.rb",
      "examples/activity.rb",
