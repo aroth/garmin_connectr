@@ -54,9 +54,9 @@ end
 class GarminConnectActivity
 
   attr_reader :activity_id, :loaded, :name, :url, :device, :start_time, :activity, :event, :time, :distance, :calories
-  attr_reader :avg_speed, :max_speed, :elevation_gain, :elevation_loss, :min_elevation, :max_elevation, :avg_hr, :max_hr, :avg_bike_cadence, :max_bike_cadence, :avg_temperature, :min_temperature, :max_temperature, :avg_pace, :best_pace
+  attr_reader :avg_speed, :max_speed, :avg_power, :max_power, :elevation_gain, :elevation_loss, :min_elevation, :max_elevation, :avg_hr, :max_hr, :avg_bike_cadence, :max_bike_cadence, :avg_temperature, :min_temperature, :max_temperature, :avg_pace, :best_pace
 
-  FIELDS = ['Avg Speed', 'Max Speed', 'Elevation Gain', 'Elevation Loss', 'Min Elevation', 'Max Elevation', 'Avg HR', 'Max HR', 'Avg Bike Cadence', 'Max Bike Cadence', 'Avg Temperature', 'Min Temperature', 'Max Temperature', 'Avg Pace', 'Best Pace']
+  FIELDS = ['Avg Speed', 'Max Speed', 'Avg Power', 'Max Power', 'Elevation Gain', 'Elevation Loss', 'Min Elevation', 'Max Elevation', 'Avg HR', 'Max HR', 'Avg Bike Cadence', 'Max Bike Cadence', 'Avg Temperature', 'Min Temperature', 'Max Temperature', 'Avg Pace', 'Best Pace']
   
   def initialize( activity_id, name=nil )
     @activity_id = activity_id
