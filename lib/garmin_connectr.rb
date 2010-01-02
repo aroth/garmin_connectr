@@ -2,6 +2,7 @@ require 'rubygems'
 require 'nokogiri'
 require 'open-uri'
 require 'mechanize'
+require 'fastercsv'
 
 class GarminConnectr
   
@@ -55,7 +56,7 @@ class GarminConnectActivity
 
   attr_reader :activity_id, :loaded, :name, :url, :device, :start_time, :activity, :event, :time, :distance, :calories
   attr_reader :avg_speed, :max_speed, :avg_power, :max_power, :elevation_gain, :elevation_loss, :min_elevation, :max_elevation, :avg_hr, :max_hr, :avg_bike_cadence, :max_bike_cadence, :avg_temperature, :min_temperature, :max_temperature, :avg_pace, :best_pace
-
+  
   FIELDS = ['Avg Speed', 'Max Speed', 'Avg Power', 'Max Power', 'Elevation Gain', 'Elevation Loss', 'Min Elevation', 'Max Elevation', 'Avg HR', 'Max HR', 'Avg Bike Cadence', 'Max Bike Cadence', 'Avg Temperature', 'Min Temperature', 'Max Temperature', 'Avg Pace', 'Best Pace']
   
   def initialize( activity_id, name=nil )
@@ -63,6 +64,8 @@ class GarminConnectActivity
     @name = name unless name.nil?
     @loaded = false
     @fields = ['name', 'url', 'device', 'start_time']
+    @splits = []
+    @split_summary = {}
   end
   
   ## Fetch activity details. This will happen automatically if using GarminConnect#load. You will have
@@ -88,10 +91,59 @@ class GarminConnectActivity
       self.instance_variable_set("@#{ name }", self.send( :tab_data, field ) )
     end
 
+    # Splits - parse CSV
+    @doc = open("http://connect.garmin.com/csvExporter/#{ @activity_id }.csv")
+    @splits = []
+    @split_summary  = {}
+    
+    @keys = []
+    @csv = FasterCSV.parse( @doc.read )
+    @csv[0].each do |key|
+      @keys.push key.downcase.gsub(' ','_') if key.is_a?(String)
+    end
+    ## Data Rows
+    @csv[1, @csv.length - 2].each_with_index do |row, index|
+      split = {}
+      @keys.each_with_index do |key, key_index|
+        split[ key ] = row[ key_index ]
+      end
+      @splits << split
+    end
+    ## Summary Row
+    @keys.each_with_index do |key, key_index|
+      @split_summary[ key ] = @csv.last[ key_index ]
+    end
+    
     self
   end
 
-  private 
+  ## Returns an array of hashes detailing activity splits (laps). Attributes may include:
+  ##
+  ##  split
+  ##  time
+  ##  distance
+  ##  elevation_gain
+  ##  elevation_loss
+  ##  avg_speed
+  ##  max_speed
+  ##  avg_hr
+  ##  max_hr
+  ##  avg_bike_cadence
+  ##  max_bike_cadence
+  ##  calories
+  ##  avg_temp
+  ##  max_power
+  ##  avg_power
+  def splits
+    @splits
+  end
+  
+  ## Returns a hash of activity splits/laps summary. See splits rdoc for possible attributes.
+  def split_summary
+    @split_summary
+  end
+
+  private
   
   def tab_data( label )
     label += ":" unless label.match(/:$/)

@@ -1,6 +1,6 @@
 = garmin_connectr
 
-GarminConnectr is a simple Ruby library for accessing data from Garmin Connect. As of 12/2009, Garmin's own Connect API has yet to be released.
+GarminConnectr is a simple Ruby library for accessing data from Garmin Connect. As of 12/2009, Garmin's own Connect API has yet to be released. Until then, this screen scraping lib does the job.
 
 Install:
 
@@ -20,6 +20,11 @@ Usage:
   list.each do |activity|
     activity.load!
     puts "#{ activity.name } / #{ activity.start_time }"
+  end
+
+  # Review activity split/lap data
+  activity.splits.each do |split|
+    puts "#{ split['split'] }: Distance: #{ split['distance'] }"
   end
 
 See examples/*
