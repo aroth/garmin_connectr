@@ -1,0 +1,50 @@
+Name
+Date
+Activity TYpe
+Event Type
+
+Embed URL
+
+
+Overall
+  Time
+  Distance
+  Elevation Gain
+  Calories
+  Avg Temperature
+  
+Timing
+  Time
+  Avg Speed
+  Max Speed
+  Avg Page
+  Best Pace
+
+Elevation
+  Elevation Gain
+  Elevation Loss
+  Min Elevation
+  Max Elevation
+  
+  (767, 749, 27, 527)
+  (1273, 915, 268, 875)
+  
+  * Elevation Corrections
+  
+  
+Heart Rate
+  Avg HR (bpm, per_of_max, zone)
+  Max HR (bpm, per_of_max, zone)
+  
+Cadence
+  Avg Bike Cadence
+  Max Bike Cadence
+
+Temperature
+  Avg Temperate
+  Min Temperature
+  Max Temperature
+  
+Additional Information:  
+  Device:
+  

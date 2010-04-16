@@ -23,6 +23,8 @@ class GarminConnectr
   ## Options:
   ##    :preload [true/false] - Automatically fetch additional activity data for each activity returned (slower)
   ##    :limit - Limit the number of activites returned (default: 50)
+  ##
+  ## TODO: Use RSS instead of requiring login/password (just requires username)
   def activities( username, password, opts={} )
     @activity_list = []
     limit = opts[:limit] || 50
