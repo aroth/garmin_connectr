@@ -54,6 +54,7 @@ class GarminConnectrActivity
     @splits = []
     @data = {}
     @data[:name] = opts[:name]
+    @data[:url] = "http://connect.garmin.com/activity/#{ @id }"
     @loaded = false
   end
     
@@ -75,7 +76,8 @@ class GarminConnectrActivity
         :activity_type => doc.css('#activityTypeValue').inner_html.gsub(/[\n\t]+/,''),
         :event_type    => doc.css('#eventTypeValue').inner_html.gsub(/[\n\t]+/,''),
         :timestamp     => doc.css('#timestamp').inner_html.gsub(/[\n\t]+/,''),
-        :embed         => doc.css('.detailsEmbedCode').attr('value').value
+        :embed         => doc.css('.detailsEmbedCode').attr('value').value,
+        :device        => doc.css('.addInfoDescription a').inner_html
       },
       :summaries => {
         :overall     => { :css => '#detailsOverallBox' },

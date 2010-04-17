@@ -1,6 +1,8 @@
 Scenario: Load Activity
   Given I have loaded activity 30051790
   Then the name should be "MTB - Mesh RDL "
+  And the device should be "Garmin Edge 500"
+  And the url should be "http://connect.garmin.com/activity/30051790"
   And the activity_type should be "Mountain Biking"
   And the event_type should be "Training"
   And the timestamp should be "Wed, Apr 14, 2010 1:46 PM"
@@ -32,7 +34,7 @@ Scenario: Load Activity
   And the min_temperature should be "73.4 °F"
   And the max_temperature should be "78.8 °F"
   And the split_count should be "3"
-
+  
 Scenario: Load Activity with Splits
   Given I have loaded activity 30051790
   Then the split_count should be "3"
