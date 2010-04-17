@@ -31,11 +31,11 @@ Scenario: Load Activity
   And the avg_temperature should be "74.4 °F"
   And the min_temperature should be "73.4 °F"
   And the max_temperature should be "78.8 °F"
-  And the lap_count should be "3"
+  And the split_count should be "3"
 
 Scenario: Load Activity with Splits
   Given I have loaded activity 30051790
-  Then the lap_count should be "3"
+  Then the split_count should be "3"
   
   And the time for split 1 should be "00:08:51"
   And the time for split 2 should be "00:26:16"

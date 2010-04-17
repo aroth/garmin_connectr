@@ -1,33 +1,27 @@
 require 'rubygems'
 require 'nokogiri'
 require 'open-uri'
-require 'mechanize'
 require 'fastercsv'
+require 'simple-rss'
+require 'mechanize'
 
 class GarminConnectr
   
-  attr_reader :activity_list
-  
   def initialize
-    @activity_list = []
   end
   
-  ## Load a specific Garmin Connect activity. See GarminConnectActivity rdoc for more information.
-  def load( activity_id )
-    activity = GarminConnectActivity.new( activity_id )
+  def load_activity( opts )
+    id = opts[:id]
+    activity = GarminConnectrActivity.new( :id => id )
     activity.load!
   end
   
-  ## Returns an array of GarminActivity objects. 
-  ##
-  ## Options:
-  ##    :preload [true/false] - Automatically fetch additional activity data for each activity returned (slower)
-  ##    :limit - Limit the number of activites returned (default: 50)
-  ##
-  ## TODO: Use RSS instead of requiring login/password (just requires username)
-  def activities( username, password, opts={} )
-    @activity_list = []
+  def load_activity_list( opts )
+    username = opts[:username]
+    password = opts[:password]
     limit = opts[:limit] || 50
+    
+    activity_list = []
     
     agent = WWW::Mechanize.new { |agent| agent.user_agent_alias = 'Mac Safari' }
     page = agent.get('http://connect.garmin.com/signin')
@@ -44,112 +38,130 @@ class GarminConnectr
       name = act.search('span').inner_html
       act[:href].match(/\/([\d]+)$/)
       aid = $1
-      
-      activity = GarminConnectActivity.new( aid, name )
-      activity.load! if opts[:preload]
-      @activity_list << activity
+      activity = GarminConnectrActivity.new( :id => aid, :name => name )
+      activity_list << activity
     end
-    @activity_list
+    activity_list    
   end
   
 end
 
-class GarminConnectActivity
+class GarminConnectrActivity
+  attr_accessor :id, :data, :splits, :split_summary, :loaded
 
-  attr_reader :activity_id, :loaded, :name, :url, :device, :start_time, :activity, :event, :time, :distance, :calories
-  attr_reader :avg_speed, :max_speed, :avg_power, :max_power, :elevation_gain, :elevation_loss, :min_elevation, :max_elevation, :avg_hr, :max_hr, :avg_bike_cadence, :max_bike_cadence, :avg_temperature, :min_temperature, :max_temperature, :avg_pace, :best_pace
-  
-  FIELDS = ['Avg Speed', 'Max Speed', 'Avg Power', 'Max Power', 'Elevation Gain', 'Elevation Loss', 'Min Elevation', 'Max Elevation', 'Avg HR', 'Max HR', 'Avg Bike Cadence', 'Max Bike Cadence', 'Avg Temperature', 'Min Temperature', 'Max Temperature', 'Avg Pace', 'Best Pace']
-  
-  def initialize( activity_id, name=nil )
-    @activity_id = activity_id
-    @name = name unless name.nil?
+  def initialize( opts )
+    @id = opts[:id]
+    @splits = []
+    @data = {}
+    @data[:name] = opts[:name]
     @loaded = false
-    @fields = ['name', 'url', 'device', 'start_time']
-    @splits = []
-    @split_summary = {}
   end
-  
-  ## Fetch activity details. This will happen automatically if using GarminConnect#load. You will have
-  ## call load! explicity on the activities returned by GarminConnect#activities unless the :preload option is set to true.
+    
   def load!
-    @doc = Nokogiri::HTML(open("http://connect.garmin.com/activity/#{ @activity_id }"))
-    @name = @doc.search('#activityName').inner_html
-    @url = "http://connect.garmin.com/activity/#{ @activity_id }"
-    @device = @doc.search('.additionalInfoContent span').inner_html.gsub('Device: ','')
-    @start_time = @doc.search('#activityStartDate').children[0].to_s.gsub(/[\n]+/,'')
-    @loaded = true
-
-    # Summary Fields (TODO: clean up)
-    @activity = @doc.search('#activityTypeValue').inner_html.gsub(/[\n]+/,'').strip rescue nil
-    @event = @doc.search('#eventTypeValue').inner_html.gsub(/[\n]+/,'').strip rescue nil
-    @time = @doc.css('#summaryTotalTime')[0].parent.children.search('.summaryField').inner_html.strip rescue nil
-    @distance = @doc.css('#summaryDistance')[0].parent.children.search('.summaryField').inner_html.strip rescue nil
-    @calories = @doc.css('#summaryCalories')[0].parent.children.search('.summaryField').inner_html.strip rescue nil
-        
-    # Tabbed Fields
-    FIELDS.each do |field|
-      name = field.downcase.gsub(' ','_')
-      self.instance_variable_set("@#{ name }", self.send( :tab_data, field ) )
-    end
-
-    # Splits - parse CSV
-    @doc = open("http://connect.garmin.com/csvExporter/#{ @activity_id }.csv")
-    @splits = []
-    @split_summary  = {}
+    url = "http://connect.garmin.com/activity/#{ @id }"
+    doc = Nokogiri::HTML(open(url))
     
-    @keys = []
-    @csv = FasterCSV.parse( @doc.read )
-    @csv[0].each do |key|
-      @keys.push key.downcase.gsub(' ','_') if key.is_a?(String)
-    end
-    ## Data Rows
-    @csv[1, @csv.length - 2].each_with_index do |row, index|
-      split = {}
-      @keys.each_with_index do |key, key_index|
-        split[ key ] = row[ key_index ]
+    # HR cell name manipulation
+    ['bpm', 'pom', 'hrZones'].each do |hr|
+      doc.css("##{ hr }Summary td").each do |e|
+        e.inner_html = "Max HR #{ hr.upcase }:" if e.inner_html =~ /Max HR/i
+        e.inner_html = "Avg HR #{ hr.upcase }:" if e.inner_html =~ /Avg HR/i
       end
-      @splits << split
-    end
-    ## Summary Row
-    @keys.each_with_index do |key, key_index|
-      @split_summary[ key ] = @csv.last[ key_index ]
     end
     
+    @scrape = {
+      :details => {
+        :name          => doc.css('#activityName').inner_html,
+        :activity_type => doc.css('#activityTypeValue').inner_html.gsub(/[\n\t]+/,''),
+        :event_type    => doc.css('#eventTypeValue').inner_html.gsub(/[\n\t]+/,''),
+        :timestamp     => doc.css('#timestamp').inner_html.gsub(/[\n\t]+/,''),
+        :embed         => doc.css('.detailsEmbedCode').attr('value').value
+      },
+      :summaries => {
+        :overall     => { :css => '#detailsOverallBox' },
+        :timing      => { :css => '#detailsTimingBox' },
+        :elevation   => { :css => '#detailsElevationBox' },
+        :heart_rate  => { :css => '#detailsHeartRateBox' },
+        :cadence     => { :css => '#detailsCadenceBox' },
+        :temperature => { :css => '#detailsTemperatureBox' },
+        :power       => { :css => '#detailsPowerBox' }
+      }
+    }
+    
+    @scrape[:details][:split_count] = doc.css('.detailsLapsNumber')[0].inner_html.to_i rescue 0
+    
+    @scrape[:details].each { |k,v| @data[k] = v }
+    @scrape[:summaries].each do |k,v|
+      doc.css("#{ v[:css] } td").each do |e|
+        if e.inner_html =~ /:[ ]?$/
+          key = e.inner_html.downcase.gsub(/ $/,'').gsub(/:/,'').gsub(' ','_').to_sym
+          @data[key] = e.next.next.inner_html.strip
+        end
+      end
+    end
+
+    ## Splits
+    if self.split_count > 0
+      load_splits!
+    end
+
+    @loaded = true
     self
   end
 
-  ## Returns an array of hashes detailing activity splits (laps). Attributes may include:
-  ##
-  ##  split
-  ##  time
-  ##  distance
-  ##  elevation_gain
-  ##  elevation_loss
-  ##  avg_speed
-  ##  max_speed
-  ##  avg_hr
-  ##  max_hr
-  ##  avg_bike_cadence
-  ##  max_bike_cadence
-  ##  calories
-  ##  avg_temp
-  ##  max_power
-  ##  avg_power
-  def splits
-    @splits
+  def fields
+    @data.keys
   end
   
-  ## Returns a hash of activity splits/laps summary. See splits rdoc for possible attributes.
-  def split_summary
-    @split_summary
+  def splits
+    self.load! unless @loaded
+    @splits
   end
 
   private
   
-  def tab_data( label )
-    label += ":" unless label.match(/:$/)
-    @doc.css('.label').to_a.delete_if { |e| e.inner_html != label }.first.parent.children.search('.field').inner_html.strip rescue nil
+  def load_splits!
+    doc = open("http://connect.garmin.com/csvExporter/#{ @id }.csv")
+
+    keys = []
+    csv = FasterCSV.parse( doc.read )
+    csv[0].each do |key|
+      keys.push key.downcase.gsub(' ','_') if key.is_a?(String)
+    end
+
+    csv[1, csv.length-1].each_with_index do |row, index|
+      split = GarminConnectrActivitySplit.new
+      keys.each_with_index do |key, key_index|
+        split.data[ key.to_sym ] = row[ key_index ].strip
+      end
+      index < csv.length - 2 ? @splits << split : @split_summary = split
+    end
   end
-    
+  
+  def method_missing(name)
+    self.load! if !@data[name.to_sym] and !@loaded  # lazy loading
+    @data[name.to_sym]
+  end
+
+end
+
+class GarminConnectrActivitySplit
+  
+  attr_reader :index, :data
+  
+  def initialize( opts={} )
+    @index = opts[:index]
+    @data = {}
+  end
+  
+  def fields
+    @data.keys
+  end
+  
+  private
+  
+  def method_missing(name)
+    @data[name.to_sym]
+  end
+  
 end

@@ -2,6 +2,9 @@
 
 GarminConnectr is a simple Ruby library for accessing data from Garmin Connect. As of 12/2009, Garmin's own Connect API has yet to be released. Until then, this screen scraping lib does the job.
 
+CHANGELOG:
+  0.6: The Garmin Connect interface has been updated. I have rewritten most of garmin_connectr and added several cucumber tests. The API has changed. Please see the example usage below.
+  
 Install:
 
   gem install garmin_connectr
@@ -12,23 +15,28 @@ Usage:
   gc = GarminConnectr.new
 
   # Load a specific activity
-  activity = gc.load( ACTIVITY_ID )
+  activity = gc.load_activity( :id => ACTIVITY_ID )
   puts "#{ g.activity } / #{ g.name } / #{ g.time } / #{ g.distance }"
 
-  # Load a list of my activities
-  list = gc.activities( garmin_connect_username, garmin_connect_password )
-  list.each do |activity|
-    activity.load!
-    puts "#{ activity.name } / #{ activity.start_time }"
+  puts "Available fields for this activity: #{ g.fields.join(',') }"
+
+  puts "Splits for this activity:"
+  g.activity.splits.each do |split|
+    puts "#{ split.split } / #{ split.distance } / #{ split.time }"
   end
 
-  # Review activity split/lap data
-  activity.splits.each do |split|
-    puts "#{ split['split'] }: Distance: #{ split['distance'] }"
+  puts "Split summary:"
+  puts "#{ activity.split_summary.time }"
+  
+  # Load a list of my activities
+  list = gc.load_activities( :username => garmin_connect_username, 
+                             :password => garmin_connect_password )
+  list.each do |activity|
+    puts "#{ activity.name } / #{ activity.start_time }"
   end
 
 See examples/*
 
 == Copyright
 
-Copyright (c) 2009 Adam Roth. See LICENSE for details.
+Copyright (c) 2010 Adam Roth. See LICENSE for details.

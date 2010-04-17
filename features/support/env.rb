@@ -1,1 +1,1 @@
-require 'lib/v2.rb'
+require 'lib/garmin_connectr.rb'
