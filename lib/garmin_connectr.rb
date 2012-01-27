@@ -141,8 +141,15 @@ class GarminConnectrActivity
   end
   
   def method_missing(name)
+    
     self.load! if !@data[name.to_sym] and !@loaded  # lazy loading
-    @data[name.to_sym]
+    ret = @data[name.to_sym]
+
+    ## Got nothing? Try a variation: Garmin changed a few fields:
+    ## =>   min_elevation => minelevation, max_elevation => maxelevation
+    ret = @data[name.to_s.gsub('_','').to_sym] if ret == nil
+
+    ret
   end
 
 end
@@ -163,7 +170,11 @@ class GarminConnectrActivitySplit
   private
   
   def method_missing(name)
-    @data[name.to_sym]
+    ## backwards compatibility 
+    name = 'avg_temperature' if name.to_s == 'avg_temp'
+    
+    ret = @data[name.to_sym]
+    ret
   end
   
 end

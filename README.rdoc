@@ -3,7 +3,8 @@
 GarminConnectr is a simple Ruby library for accessing data from Garmin Connect. As of 12/2009, Garmin's own Connect API has yet to be released. Until then, this screen scraping lib does the job.
 
 CHANGELOG:
-  0.6: The Garmin Connect interface has been updated. I have rewritten most of garmin_connectr and added several cucumber tests. The API has changed. Please see the example usage below.
+  0.0.8: Updated code to handle naming changing on Garmin's end (ex: max_elevation is now maxelevation); updated tests.
+  0.0.6: The Garmin Connect interface has been updated. I have rewritten most of garmin_connectr and added several cucumber tests. The API has changed. Please see the example usage below.
   
 Install:
 
@@ -39,4 +40,4 @@ See examples/*
 
 == Copyright
 
-Copyright (c) 2010 Adam Roth. See LICENSE for details.
+Copyright (c) 2009-2012 Adam Roth. See LICENSE for details.
