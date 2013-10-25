@@ -1,7 +1,7 @@
 require 'rubygems'
 require 'nokogiri'
 require 'open-uri'
-require 'fastercsv'
+require 'csv'
 require 'simple-rss'
 require 'mechanize'
 
@@ -23,7 +23,7 @@ class GarminConnectr
     
     activity_list = []
     
-    agent = WWW::Mechanize.new { |agent| agent.user_agent_alias = 'Mac Safari' }
+    agent = Mechanize.new { |agent| agent.user_agent_alias = 'Mac Safari' }
     page = agent.get('http://connect.garmin.com/signin')
     form = page.form('login')
     form.send('login:loginUsernameField', username)
@@ -126,7 +126,7 @@ class GarminConnectrActivity
     doc = open("http://connect.garmin.com/csvExporter/#{ @id }.csv")
 
     keys = []
-    csv = FasterCSV.parse( doc.read )
+    csv = CSV.parse( doc.read )
     csv[0].each do |key|
       keys.push key.downcase.gsub(' ','_') if key.is_a?(String)
     end
